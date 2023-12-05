@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+    {% block cart_quantity %}
+        <div id="cart-qty" class="qty">{{ cart_qty }}</div>
+    {% endblock %}
+    {% block wishlist_count %}
+        <div id="wishlist-qty" class="qty">{{ wishlist_count }}</div>
+    {% endblock %}
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            {% if messages %}
+                <div class="alert alert-success" role="alert">
+                    {% for message in messages %}
+                        {{ message|safe }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- row -->
+            <div class="row">
+                {% for cat in categories %}
+                    {% if not cat.parent %}
+                        <!-- shop -->
+                        <div class="col-md-4 col-xs-6">
+                            <div class="shop">
+                                <div class="shop-img">
+                                    <img src="{{ cat.image.url }}" alt="">
+                                </div>
+                                <div class="shop-body">
+                                    <h3>{{ cat.title }}<br>Collection</h3>
+                                    <a href="{% url "product:filtered_product_list" cat.title %}" class="cta-btn">Shop
+                                        now <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /shop -->
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- section title -->
+                <div class="col-md-12">
+                    <div class="section-title">
+                        <h3 class="title">Products</h3>
+                    </div>
+                </div>
+                <!-- /section title -->
+                <!-- Products tab & slick -->
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="products-tabs">
+                            <!-- tab -->
+                            <div id="tab1" class="tab-pane active">
+                                <div class="products-slick" data-nav="#slick-nav-1">
+                                    {% for product in products %}
+                                        <!-- product -->
+                                        <div class="product">
+                                            <div class="product-img">
+                                                <img src="{{ product.image.url }}" alt="">
+                                                <div class="product-label">
+                                                    {% if product.on_sale %}
+                                                        <span class="new">OFF -30%</span>
+                                                    {% elif product.quantity == 0 %}
+                                                        <span class="new">No Product</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="product-body">
+                                                <p class="product-category">{{ product.category.first }}</p>
+                                                <h3 class="product-name"><a
+                                                        href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                                </h3>
+                                                {% if product.on_sale %}
+                                                    <h4 class="product-price">${{ product.discount }}.00
+                                                        <del class="product-old-price">${{ product.price }}.00</del>
+                                                    </h4>
+                                                {% elif product.quantity == 0 %}
+                                                    <del class="product-old-price">${{ product.price }}.00</del>
+                                                    </h4>
+                                                {% else %}
+                                                    <h4 class="product-price">${{ product.price }}.00</h4>
+                                                {% endif %}
+                                                <div class="product-review">
+                                                    <small>{% with product.comments.count as count %}{{ count }}
+                                                        review(s){% endwith %}</small>
+                                                </div>
+                                                <div class="product-btns">
+                                                    <form id="wishlist-form-{{ product.id }}"
+                                                          action="{% url 'product:add_wishlist' id=product.id %}"
+                                                          method="post">
+                                                        {% csrf_token %}
+                                                        <button class="wishlist-toggle {% if request.user in product.wishlist.all %}active{% endif %}"
+                                                                type="button">
+                                                            {% if request.user in product.wishlist.all %}
+                                                                <i class="fa fa-heart"></i>
+                                                            {% else %}
+                                                                <i class="fa fa-heart-o"></i>
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                    {#                                                    <button class="add-to-compare"><i class="fa fa-exchange"></i><span#}
+                                                    {#                                                            class="tooltipp">add to compare</span></button>#}
+                                                </div>
+                                            </div>
+                                            <div class="add-to-cart">
+                                                <div class="add-to-cart">
+                                                    {% if product.quantity == 0 %}
+                                                        <button type="" class="add-to-cart-btn"><i
+                                                                class="fa fa-shopping-cart"></i> Not Available
+                                                        </button>
+                                                    {% else %}
+                                                        <form method="post"
+                                                              action="{% url 'cart:cart_add' pk=product.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="add-to-cart-btn"><i
+                                                                    class="fa fa-shopping-cart"></i> add
+                                                                to cart
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /product -->
+                                    {% endfor %}
+                                </div>
+                                <div id="slick-nav-1" class="products-slick-nav"></div>
+                            </div>
+                            <!-- /tab -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Products tab & slick -->
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    <!-- HOT DEAL SECTION -->
+    <div id="hot-deal" class="section">
+        <!-- container -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="hot-deal">
+                        <ul id="countdown" class="hot-deal-countdown">
+                            <li>
+                                <div>
+                                    <h3 id="days">--</h3>
+                                    <span>Days</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <h3 id="hours">--</h3>
+                                    <span>Hours</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <h3 id="minutes">--</h3>
+                                    <span>Mins</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <h3 id="seconds">--</h3>
+                                    <span>Secs</span>
+                                </div>
+                            </li>
+                        </ul>
+                        <!-- products/home.html -->
+                        <h2 class="text-uppercase">hot deal this week</h2>
+                        <p>New Collection Up to 30% OFF</p>
+                        <a class="primary-btn cta-btn" href="{% url 'product:product_list' %}?on_sale=true">Shop now</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+    </div>
+    <!-- /HOT DEAL SECTION -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- section title -->
+                <div class="col-md-12">
+                    <div class="section-title">
+                        <h3 class="title">Latest Products</h3>
+                    </div>
+                </div>
+                <!-- /section title -->
+                <!-- Products tab & slick -->
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="products-tabs">
+                            <!-- tab -->
+                            <div id="tab2" class="tab-pane fade in active">
+                                <div class="products-slick" data-nav="#slick-nav-2">
+                                    {% for product in recent_products %}
+                                        <div class="product">
+                                            <div class="product-img">
+                                                <img src="{{ product.image.url }}" alt="">
+                                                <div class="product-label">
+                                                    {% if product.on_sale %}
+                                                        <span class="new">OFF -30%</span>
+                                                    {% elif product.quantity == 0 %}
+                                                        <span class="new">No Product</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="product-body">
+                                                <p class="product-category">{{ product.category.first }}</p>
+                                                <h3 class="product-name"><a
+                                                        href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                                </h3>
+                                                {% if product.on_sale %}
+                                                    <h4 class="product-price">${{ product.discount }}.00
+                                                        <del class="product-old-price">${{ product.price }}.00</del>
+                                                    </h4>
+                                                {% elif product.quantity == 0 %}
+                                                    <del class="product-old-price">${{ product.price }}.00</del>
+                                                {% else %}
+                                                    <h4 class="product-price">${{ product.price }}.00</h4>
+                                                {% endif %}
+                                                <div class="product-review">
+                                                    <small>{% with product.comments.count as count %}{{ count }}
+                                                        review(s){% endwith %}</small>
+                                                </div>
+                                                <div class="product-btns">
+                                                    <form id="wishlist-form-{{ product.id }}"
+                                                          action="{% url 'product:add_wishlist' id=product.id %}"
+                                                          method="post">
+                                                        {% csrf_token %}
+                                                        <button class="wishlist-toggle {% if request.user in product.wishlist.all %}active{% endif %}"
+                                                                type="button">
+                                                            {% if request.user in product.wishlist.all %}
+                                                                <i class="fa fa-heart"></i>
+                                                            {% else %}
+                                                                <i class="fa fa-heart-o"></i>
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                    {#                                                    <button class="add-to-compare"><i class="fa fa-exchange"></i><span#}
+                                                    {#                                                            class="tooltipp">add to compare</span></button>#}
+                                                    {#                                                    #}
+                                                </div>
+                                            </div>
+                                            <div class="add-to-cart">
+                                                <div class="add-to-cart">
+                                                    {% if product.quantity == 0 %}
+                                                        <button type="" class="add-to-cart-btn"><i
+                                                                class="fa fa-shopping-cart"></i> Not Available
+                                                        </button>
+                                                    {% else %}
+                                                        <form method="post"
+                                                              action="{% url 'cart:cart_add' pk=product.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="add-to-cart-btn"><i
+                                                                    class="fa fa-shopping-cart"></i> add
+                                                                to cart
+                                                            </button>
+                                                        </form>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div id="slick-nav-2" class="products-slick-nav"></div>
+                            </div>
+                            <!-- /tab -->
+                        </div>
+                    </div>
+                </div>
+                <!-- /Products tab & slick -->
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-4 col-xs-6">
+                    <div class="section-title">
+                        <h4 class="title">Latest Products</h4>
+                        <div class="section-nav">
+                            <div id="slick-nav-3" class="products-slick-nav"></div>
+                        </div>
+                    </div>
+
+                    <div class="products-widget-slick" data-nav="#slick-nav-3">
+                        <div>
+                            <!-- product widget -->
+                            {% for product in widget_recent_products2 %}
+                                <div class="product-widget">
+                                    <div class="product-img">
+                                        <img src="{{ product.image.url }}" alt="">
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.category.first }}</p>
+                                        <h3 class="product-name"><a
+                                                href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                        </h3>
+                                        {% if product.on_sale %}
+                                            <h4 class="product-price">${{ product.discount }}.00
+                                                <del class="product-old-price">${{ product.price }}.00</del>
+                                            </h4>
+                                        {% elif product.quantity == 0 %}
+                                            <del class="product-old-price">${{ product.price }}.00</del>
+                                        {% else %}
+                                            <h4 class="product-price">${{ product.price }}.00</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <!-- /product widget -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-xs-6">
+                    <div class="section-title">
+                        <h4 class="title">Products</h4>
+                        <div class="section-nav">
+                            <div id="slick-nav-4" class="products-slick-nav"></div>
+                        </div>
+                    </div>
+
+                    <div class="products-widget-slick" data-nav="#slick-nav-4">
+                        <div>
+                            <!-- product widget -->
+                            {% for product in widget_products1 %}
+                                <div class="product-widget">
+                                    <div class="product-img">
+                                        <img src="{{ product.image.url }}" alt="">
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.category.first }}</p>
+                                        <h3 class="product-name"><a
+                                                href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                        </h3>
+                                        {% if product.on_sale %}
+                                            <h4 class="product-price">${{ product.discount }}.00
+                                                <del class="product-old-price">${{ product.price }}.00</del>
+                                            </h4>
+                                        {% elif product.quantity == 0 %}
+                                            <del class="product-old-price">${{ product.price }}.00</del>
+                                        {% else %}
+                                            <h4 class="product-price">${{ product.price }}.00</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <!-- /product widget -->
+                        </div>
+                        <div>
+                            <!-- product widget -->
+                            {% for product in widget_products2 %}
+                                <div class="product-widget">
+                                    <div class="product-img">
+                                        <img src="{{ product.image.url }}" alt="">
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.category.first }}</p>
+                                        <h3 class="product-name"><a
+                                                href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                        </h3>
+                                        {% if product.on_sale %}
+                                            <h4 class="product-price">${{ product.discount }}.00
+                                                <del class="product-old-price">${{ product.price }}.00</del>
+                                            </h4>
+                                        {% elif product.quantity == 0 %}
+                                            <del class="product-old-price">${{ product.price }}.00</del>
+                                        {% else %}
+                                            <h4 class="product-price">${{ product.price }}.00</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <!-- /product widget -->
+                        </div>
+                    </div>
+                </div>
+                <div class="clearfix visible-sm visible-xs"></div>
+                <div class="col-md-4 col-xs-6">
+                    <div class="section-title">
+                        <h4 class="title">Products</h4>
+                        <div class="section-nav">
+                            <div id="slick-nav-5" class="products-slick-nav"></div>
+                        </div>
+                    </div>
+
+                    <div class="products-widget-slick" data-nav="#slick-nav-5">
+                        <div>
+                            <!-- product widget -->
+                            {% for product in widget_products1 %}
+                                <div class="product-widget">
+                                    <div class="product-img">
+                                        <img src="{{ product.image.url }}" alt="">
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.category.first }}</p>
+                                        <h3 class="product-name"><a
+                                                href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                        </h3>
+                                        {% if product.on_sale %}
+                                            <h4 class="product-price">${{ product.discount }}.00
+                                                <del class="product-old-price">${{ product.price }}.00</del>
+                                            </h4>
+                                        {% elif product.quantity == 0 %}
+                                            <del class="product-old-price">${{ product.price }}.00</del>
+                                        {% else %}
+                                            <h4 class="product-price">${{ product.price }}.00</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <!-- /product widget -->
+                        </div>
+
+                        <div>
+                            <!-- product widget -->
+                            {% for product in widget_products2 %}
+                                <div class="product-widget">
+                                    <div class="product-img">
+                                        <img src="{{ product.image.url }}" alt="">
+                                    </div>
+                                    <div class="product-body">
+                                        <p class="product-category">{{ product.category.first }}</p>
+                                        <h3 class="product-name"><a
+                                                href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                        </h3>
+                                        {% if product.on_sale %}
+                                            <h4 class="product-price">${{ product.discount }}.00
+                                                <del class="product-old-price">${{ product.price }}.00</del>
+                                            </h4>
+                                        {% elif product.quantity == 0 %}
+                                            <del class="product-old-price">${{ product.price }}.00</del>
+                                        {% else %}
+                                            <h4 class="product-price">${{ product.price }}.00</h4>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <!-- /product widget -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    <!-- NEWSLETTER -->
+    <div id="newsletter" class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="newsletter">
+                        <p>Sign Up for the <strong>NEWSLETTER</strong></p>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input class="input" name="email" type="email" id="email" placeholder="Enter Your Email">
+                            <button type="submit" class="newsletter-btn"><i class="fa fa-envelope"></i> Subscribe
+                            </button>
+                        </form>
+                        <ul class="newsletter-follow">
+                            <li>
+                                <a href="https://www.linkedin.com/in/hosein-jamil"><i class="fa fa-linkedin"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://www.github.com/hoseinjamil/"><i class="fa fa-github"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://www.instagram.com/hoseinjamil/"><i class="fa fa-instagram"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://t.me/hoseinjamil/"><i class="fa fa-telegram"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /NEWSLETTER -->
+
+
+{% endblock %}

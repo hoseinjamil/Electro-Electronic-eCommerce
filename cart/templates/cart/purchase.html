@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    {% block cart_quantity %}
+        <div id="cart-qty" class="qty">{{ cart_qty }}</div>
+    {% endblock %}
+    {% block wishlist_count %}
+        <div id="wishlist-qty" class="qty">{{ wishlist_count }}</div>
+    {% endblock %}
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 class="alert-success">WELL DONE USER: {{ user_phone }}</h2>
+                </div>
+
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+{% endblock %}

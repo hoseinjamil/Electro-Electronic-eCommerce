@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+{% block content %}
+
+
+    {% block cart_quantity %}
+        <div id="cart-qty" class="qty">{{ cart_qty }}</div>
+    {% endblock %}
+    {% block wishlist_count %}
+        <div id="wishlist-qty" class="qty">{{ wishlist_count }}</div>
+    {% endblock %}
+    <section class="ftco-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-12 text-left mb-5">
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-12 col-lg-4">
+                    <div class="login-wrap p-0">
+                        <h3 class="mb-4 text-center"> Do you have an account?</h3>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                {{ form.phone.label_tag }}
+                                {% if form.phone.errors %}
+                                    <div class="alert alert-danger">{{ form.phone.errors }}</div>
+                                {% endif %}
+                                {{ form.phone }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.password.label_tag }}
+                                {% if form.password.errors %}
+                                    <div class="alert alert-danger">{{ form.password.errors }}</div>
+                                {% endif %}
+                                <div class="password-toggle">
+                                    {{ form.password }}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                {% if form.captcha.errors %}
+                                    <div class="alert alert-danger">{{ form.captcha.errors }}</div>
+                                {% endif %}
+                                {{ form.captcha }}
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="primary-btn order-submit">Login</button>
+                            </div>
+                            <div class="form-group d-md-flex">
+                                <div class="w-50">
+                                    <label class="checkbox-wrap checkbox-primary">Remember Me
+                                        <input type="checkbox" checked>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="w-50 text-md-right">
+                                    {# <a href="{% url "account:user_otplogin"%}" style="color: #fff">Forgot Password</a> #}
+                                </div>
+                            </div>
+                            <div class="w-100 text-center">
+                                <a href="{% url "account:user_register" %}" style="color: #fff">Don't have an
+                                    account?</a>
+                            </div>
+                            {#                            <p class="w-100 text-center mt-3">&mdash; Or Sign In With &mdash;</p>#}
+                            {#                            <div class="social d-flex justify-content-center">#}
+                            {#                                <a href="{% provider_login_url 'google' %}" class="px-2 py-2 ml-md-1 rounded">#}
+                            {#                                    <span class="ion-logo-google mr-2"></span> Google#}
+                            {#                                </a>#}
+                            {#                            </div>#}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

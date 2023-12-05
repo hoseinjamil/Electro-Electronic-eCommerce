@@ -1,0 +1,517 @@
+{% extends "base.html" %}
+{% load static %}
+{% load social_share %}
+{% block content %}
+
+
+    {% block cart_quantity %}
+        <div id="cart-qty" class="qty">{{ cart_qty }}</div>
+    {% endblock %}
+    {% block wishlist_count %}
+        <div id="wishlist-qty" class="qty">{{ wishlist_count }}</div>
+    {% endblock %}
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+        {% if messages %}
+                <div class="alert alert-success" role="alert">
+                    {% for message in messages %}
+                        {{ message|safe }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- row -->
+            <div class="row">
+                <!-- Product main img -->
+                <div class="col-md-5 col-md-push-2">
+                    <div id="product-main-img">
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+                    </div>
+                </div>
+                <!-- /Product main img -->
+
+                <!-- Product thumb imgs -->
+                <div class="col-md-2  col-md-pull-5">
+                    <div id="product-imgs">
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+
+                        <div class="product-preview">
+                            <img src="{{ products.image.url }}" alt="">
+                        </div>
+                    </div>
+                </div>
+                <!-- /Product thumb imgs -->
+
+                <!-- Product details -->
+                <div class="col-md-5">
+                    <div class="product-details">
+                        <h2 class="product-name">{{ products.title }}</h2>
+                        <div>
+                            <div class="product-rating">
+                                {% if average_rate %}
+                                    <i class="fa fa-star">{{ average_rate|floatformat:1 }}</i>
+                                {% else %}
+                                    <i class="fa fa-star-o">{{ average_rate }}</i>
+                                {% endif %}
+                            </div>
+                            <a class="review-link" href="#">
+                                {% with products.comments.count as count %}{{ count }} Review(s){% endwith %}</a>
+                        </div>
+                        <div>
+                            <h3 class="product-price">${{ products.discount }}.00
+                                <del class="product-old-price">${{ products.price }}.00</del>
+                            </h3>
+                        </div>
+                        <p>{{ products.description }}.</p>
+                        {% if products.size.all or not products.size.all %}
+                            <form action="{% url "cart:cart_add" products.id %}" method="post">
+                                {% csrf_token %}
+
+                                {% if products.size.all %}
+                                    <label>
+                                        Size
+                                        <select class="input-select" name="size">
+                                            {% for size in products.size.all %}
+                                                <option value="{{ size.title }}"
+                                                        id="{{ size.title }}">{{ size.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </label>
+                                {% endif %}
+
+                                <label>
+                                    Color
+                                    <select class="input-select" name="color">
+                                        {% for color in products.color.all %}
+                                            <option value="{{ color.title }}"
+                                                    id="{{ color.title }}">{{ color.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+
+                                <div class="add-to-cart">
+                                    <div class="qty-label">
+                                        Qty
+                                        <div class="input-number">
+                                            <input type="number" name="quantity" value="1">
+                                            <span class="qty-up">+</span>
+                                            <span class="qty-down">-</span>
+                                        </div>
+                                    </div>
+                                    {% if products.quantity == 0 %}
+                                        <button type="button" class="add-to-cart-btn"><i
+                                                class="fa fa-shopping-cart"></i>
+                                            No Available
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="add-to-cart-btn"><i
+                                                class="fa fa-shopping-cart"></i>
+                                            add to cart
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </form>
+                        {% endif %}
+
+                        <ul class="product-btns">
+                            <form id="wishlist-form-{{ products.id }}"
+                                  action="{% url 'product:add_wishlist' id=products.id %}"
+                                  method="post">
+                                {% csrf_token %}
+                                <button class="wishlist-toggle {% if request.user in products.wishlist.all %}active{% endif %}"
+                                        type="button">
+                                    {% if request.user in products.wishlist.all %}
+                                        <i class="fa fa-heart">remove from wishlist</i>
+                                    {% else %}
+                                        <i class="fa fa-heart-o">add to wishlist</i>
+                                    {% endif %}
+                                </button>
+                            </form>
+                            {#                            <li><a href="#"><i class="fa fa-exchange"></i> add to compare</a></li>#}
+                        </ul>
+
+                        <ul class="product-links">
+                            <li>Category:</li>
+                            {% for cat in products.category.all %}
+                                <li><a href="#">{{ cat.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+
+                        <ul class="product-links">
+                            <li>Share:</li>
+                            <li>{% post_to_whatsapp product.get_absolute_url "whatsapp" %}</li>
+                        </ul>
+
+                    </div>
+                </div>
+                <!-- /Product details -->
+
+                <!-- Product tab -->
+                <div class="col-md-12">
+                    <div id="product-tab">
+                        <!-- product tab nav -->
+                        <ul class="tab-nav">
+                            <li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
+                            <li><a data-toggle="tab" href="#tab2">Details</a></li>
+                            <li><a data-toggle="tab" href="#tab3">
+                                {% with products.comments.count as count %}{{ count }} Review(s){% endwith %}</a></li>
+                        </ul>
+                        <!-- /product tab nav -->
+
+                        <!-- product tab content -->
+                        <div class="tab-content">
+                            <!-- tab1  -->
+                            <div id="tab1" class="tab-pane fade in active">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>{{ products.description }}.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- /tab1  -->
+
+                            <!-- tab2  -->
+                            <div id="tab2" class="tab-pane fade in">
+                                <div class="row">
+                                    {% for info in products.informations.all %}
+                                        <div class="col-md-6">
+                                            <ul class="list-group list-group-flush">
+                                                <li class="list-group-item px-0">
+                                                    {{ info.text }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <!-- /tab2  -->
+
+                            <!-- tab3  -->
+                            <div id="tab3" class="tab-pane fade in">
+                                <div class="row">
+                                    <!-- Rating -->
+                                    <div class="col-md-3">
+                                        <div id="rating">
+                                            <div class="rating-avg">
+                                                <div class="rating-stars">
+                                                    Review(s) Rating:
+                                                    {% if average_rate %}
+                                                        <i class="fa fa-star">{{ average_rate|floatformat:1 }}</i>
+                                                    {% else %}
+                                                        <i class="fa fa-star-o">{{ average_rate }}</i>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /Rating -->
+
+                                    <!-- Reviews -->
+                                    <div class="col-md-6">
+                                        <div id="reviews">
+                                            <ul class="reviews">
+                                                {% for comment in products.comments.all %}
+                                                    {% if comment.parent == None %}
+                                                        <li>
+                                                            <div class="review-heading">
+                                                                <h5 class="name">{{ comment.name }}</h5>
+                                                                <p class="date">{{ comment.created_at.date }}</p>
+                                                                <div class="review-rating">
+                                                                    {% if comment.rate == 0 %}
+                                                                        <i class="fa fa-star-o empty"></i>
+                                                                    {% elif comment.rate == 1 %}
+                                                                        <i class="fa fa-star"></i>
+                                                                    {% elif comment.rate == 2 %}
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                    {% elif comment.rate == 3 %}
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                    {% elif comment.rate == 4 %}
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                    {% elif comment.rate == 5 %}
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                        <i class="fa fa-star"></i>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="review-body">
+                                                                <p>{{ comment.body }}</p>
+                                                            </div>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                            {#                                            {% if comments.has_other_pages %}#}
+                                            {#                                                <ul class="reviews-pagination">#}
+                                            {#                                                    {% if comments.has_previous %}#}
+                                            {#                                                        <li><a href="?page=#}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {#                                                                {{ comments.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"><i#}
+                                            {#                                                                class="fa fa-angle-left"></i></a></li>#}
+                                            {#                                                    {% endif %}#}
+                                            {#                                                    {% for i in comments.paginator.page_range %}#}
+                                            {#                                                        {% if comments.number == i %}#}
+                                            {#                                                            <li class="active"><a href="?page=#}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {#                                                                    {{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>#}
+                                            {#                                                            </li>#}
+                                            {#                                                        {% else %}#}
+                                            {#                                                            <li><a href="?page=#}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {#                                                                    {{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>#}
+                                            {#                                                            </li>#}
+                                            {#                                                        {% endif %}#}
+                                            {#                                                    {% endfor %}#}
+                                            {#                                                    {% if comments.has_next %}#}
+                                            {#                                                        <li><a href="?page=#}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {##}
+                                            {#                                                                {{ comments.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"><i#}
+                                            {#                                                                class="fa fa-angle-right"></i></a></li>#}
+                                            {#                                                    {% endif %}#}
+                                            {#                                                </ul>#}
+                                            {#                                            {% endif %}#}
+                                        </div>
+                                    </div>
+                                    <!-- /Reviews -->
+
+                                    <!-- Review Form -->
+                                    <div class="col-md-3">
+                                        <form id="comment" method="post">
+                                            {% csrf_token %}
+                                            <div id="review-form">
+                                                <form id="comment" method="post">
+                                                    {% csrf_token %}
+                                                    <div id="review-form">
+                                                        <input class="input" id="name" name="name" type="text"
+                                                               placeholder="Your Name">
+                                                        <input class="input" id="email" name="email" type="email"
+                                                               placeholder="Your Email(optional)">
+                                                        <textarea id="body" name="body" class="input"
+                                                                  placeholder="Your Review"></textarea>
+                                                        <div class="input-rating">
+                                                            <span>Your Rating: </span>
+                                                            <div class="stars">
+                                                                <input id="star5" name="rate" value="5"
+                                                                       type="radio"><label for="star5"></label>
+                                                                <input id="star4" name="rate" value="4"
+                                                                       type="radio"><label for="star4"></label>
+                                                                <input id="star3" name="rate" value="3"
+                                                                       type="radio"><label for="star3"></label>
+                                                                <input id="star2" name="rate" value="2"
+                                                                       type="radio"><label for="star2"></label>
+                                                                <input id="star1" name="rate" value="1"
+                                                                       type="radio"><label for="star1"></label>
+                                                            </div>
+                                                        </div>
+                                                        <button class="primary-btn">Submit</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!-- /Review Form -->
+
+                                </div>
+                            </div>
+                            <!-- /tab3  -->
+                        </div>
+                        <!-- /product tab content  -->
+                    </div>
+                </div>
+                <!-- /product tab -->
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+    <!-- Section -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="section-title text-center">
+                        <h3 class="title">Related Products</h3>
+                    </div>
+                </div>
+
+                <!-- product -->
+                {% for product in related_products %}
+                    <div class="col-md-3 col-xs-6">
+                        <div class="product">
+                            <div class="product-img">
+                                <img src="{{ product.image.url }}" alt="">
+                                <div class="product-label">
+                                    {% if product.on_sale %}
+                                        <span class="new">OFF -30%</span>
+                                    {% elif product.quantity == 0 %}
+                                        <span class="new">No Product</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="product-body">
+                                <p class="product-category">{{ product.category.first }}</p>
+                                <h3 class="product-name"><a href="#">{{ product.title }}</a></h3>
+                                {% if product.on_sale %}
+                                    <h4 class="product-price">${{ product.discount }}.00
+                                        <del class="product-old-price">${{ product.price }}.00</del>
+                                    </h4>
+                                {% elif product.quantity == 0 %}
+                                    <del class="product-old-price">${{ product.price }}.00</del>
+                                    </h4>
+                                {% else %}
+                                    <h4 class="product-price">${{ product.price }}.00</h4>
+                                {% endif %}
+                                <div class="product-review">
+                                    <small>{% with product.comments.count as count %}{{ count }}
+                                        review(s){% endwith %}</small>
+                                </div>
+                                <div class="product-btns">
+                                    <form id="wishlist-form-{{ product.id }}"
+                                          action="{% url 'product:add_wishlist' id=product.id %}"
+                                          method="post">
+                                        {% csrf_token %}
+                                        <button class="wishlist-toggle {% if request.user in product.wishlist.all %}active{% endif %}"
+                                                type="button">
+                                            {% if request.user in product.wishlist.all %}
+                                                <i class="fa fa-heart"></i>
+                                            {% else %}
+                                                <i class="fa fa-heart-o"></i>
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="add-to-cart">
+                                {% if product.quantity == 0 %}
+                                    <button class="add-to-cart-btn"><i
+                                            class="fa fa-shopping-cart"></i> Not Available
+                                    </button>
+                                {% else %}
+                                    <form method="post" action="{% url 'cart:cart_add' pk=product.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="add-to-cart-btn"><i
+                                                class="fa fa-shopping-cart"></i> add
+                                            to cart
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <!-- /product -->
+
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /Section -->
+
+
+{% endblock %}

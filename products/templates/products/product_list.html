@@ -1,0 +1,382 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+    {% block cart_quantity %}
+        <div id="cart-qty" class="qty">{{ cart_qty }}</div>
+    {% endblock %}
+    {% block wishlist_count %}
+        <div id="wishlist-qty" class="qty">{{ wishlist_count }}</div>
+    {% endblock %}
+
+    <!-- SECTION -->
+    <div class="section">
+        <!-- container -->
+        <div class="container">
+
+            {% if messages %}
+                <div class="alert alert-success" role="alert">
+                    {% for message in messages %}
+                        {{ message|safe }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <!-- row -->
+            <div class="row">
+                <!-- ASIDE -->
+                <div id="aside" class="col-md-3">
+                    <!-- aside Widget -->
+                    <div class="aside">
+                        <h3 class="aside-title">Categories</h3>
+                        <div class="checkbox-filter">
+                            <form>
+                                <div class="input-checkbox">
+                                    <input type="checkbox" name="category" value="Laptop" id="category-1">
+                                    <label for="category-1">
+                                        <span></span>
+                                        Laptops
+                                        {#                                        <small>(120)</small>#}
+                                    </label>
+                                </div>
+
+                                <div class="input-checkbox">
+                                    <input type="checkbox" name="category" value="SmartPhone" id="category-2">
+                                    <label for="category-2">
+                                        <span></span>
+                                        Smartphones
+                                    </label>
+                                </div>
+
+                                <div class="input-checkbox">
+                                    <input type="checkbox" name="category" value="Camera" id="category-3">
+                                    <label for="category-3">
+                                        <span></span>
+                                        Cameras
+                                    </label>
+                                </div>
+
+                                <div class="input-checkbox">
+                                    <input type="checkbox" name="category" value="SmartWatch" id="category-4">
+                                    <label for="category-4">
+                                        <span></span>
+                                        Smartwatches
+                                    </label>
+                                </div>
+
+                                <div class="input-checkbox">
+                                    <input type="checkbox" name="category" value="Headphone" id="category-5">
+                                    <label for="category-5">
+                                        <span></span>
+                                        Headphones
+                                    </label>
+                                </div>
+
+                                <div class="input-checkbox">
+                                    <input type="checkbox" name="category" value="Keyboard" id="category-6">
+                                    <label for="category-6">
+                                        <span></span>
+                                        ConsoleGames
+                                    </label>
+                                </div>
+                        </div>
+                    </div>
+                    <!-- /aside Widget -->
+
+                    <!-- aside Widget -->
+                    <div class="aside">
+                        <h3 class="aside-title">Price</h3>
+                        <div class="price-filter">
+                            <div id="price-slider"></div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <label for="price-all">Min:$</label>
+                                <input type="number" name="min_price" id="price-all">
+                            </div>
+                            <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                                <label for="price-all">Max:$</label>
+                                <input type="number" name="max_price" id="price-all">
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- /aside Widget -->
+
+                    <!-- aside Widget -->
+                    <div class="aside">
+                        <h3 class="aside-title">Brand</h3>
+                        <div class="checkbox-filter">
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="SAMSUNG" id="brand-1">
+                                <label for="brand-1">
+                                    <span></span>
+                                    SAMSUNG
+                                </label>
+                            </div>
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="APPLE" id="brand-2">
+                                <label for="brand-2">
+                                    <span></span>
+                                    APPLE
+                                </label>
+                            </div>
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="SONY" id="brand-3">
+                                <label for="brand-3">
+                                    <span></span>
+                                    SONY
+                                </label>
+                            </div>
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="ASUS" id="brand-4">
+                                <label for="brand-4">
+                                    <span></span>
+                                    ASUS
+                                </label>
+                            </div>
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="HP" id="brand-6">
+                                <label for="brand-6">
+                                    <span></span>
+                                    HP
+                                </label>
+                            </div>
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="XBOX" id="brand-7">
+                                <label for="brand-7">
+                                    <span></span>
+                                    XBOX
+                                </label>
+                            </div>
+
+                        </div>
+                        <input type="submit" class="btn btn-block btn-danger font-weight-bold my-3 py-3"></input>
+                        </form>
+                    </div>
+                    <!-- /aside Widget -->
+
+                    <!-- aside Widget -->
+                    <div class="aside">
+                        <h3 class="aside-title">Latest Product</h3>
+                        {% for product in recent_products %}
+                            <div class="product-widget">
+                                <div class="product-img">
+                                    <img src="{{ product.image.url }}" alt="">
+                                </div>
+                                <div class="product-body">
+                                    <p class="product-category">{{ product.category.first }}</p>
+                                    <h3 class="product-name"><a
+                                            href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                    </h3>
+                                    {% if product.on_sale %}
+                                        <h4 class="product-price">${{ product.discount }}.00
+                                            <del class="product-old-price">${{ product.price }}.00</del>
+                                        </h4>
+                                    {% elif product.quantity == 0 %}
+                                        <del class="product-old-price">${{ product.price }}.00</del>
+                                    {% else %}
+                                        <h4 class="product-price">${{ product.price }}.00</h4>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <!-- /product widget -->
+                    </div>
+                    <!-- /aside Widget -->
+                </div>
+                <!-- /ASIDE -->
+
+                <!-- STORE -->
+                <div id="store" class="col-md-9">
+                    <!-- store top filter -->
+                    <div class="store-filter clearfix">
+                        <div class="store-sort">
+                            <label>
+                                Sort By:
+                                <form method="get">
+                                    <select name="sort_by" class="input-select">
+                                        <option value="" selected disabled hidden>Sort</option>
+                                        <option value="low_price">price:low to high</option>
+                                        <option value="high_price">price:high to low</option>
+                                        <option value="on_sale_product">on sale product</option>
+                                    </select>
+                                    <input type="submit" value="Submit" class="btn btn-sm btn-light">
+                                </form>
+                            </label>
+                        </div>
+                        <ul class="store-grid">
+                            <li class="active d-flex justify-content-center align-items-center"><i class="fa fa-th"></i>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- /store top filter -->
+
+                    <!-- store products -->
+                    <div class="row">
+                        <!-- product -->
+                        {% for product in products %}
+                            <div class="order-col">
+                                <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                                    <div class="product">
+                                        <div class="product-img">
+                                            <img src="{{ product.image.url }}" style="width: 250px; height: 230px;"
+                                                 alt="">
+                                            <div class="product-label">
+                                                {% if product.on_sale %}
+                                                    <span class="new">OFF -30%</span>
+                                                {% elif product.quantity == 0 %}
+                                                    <span class="new">No Product</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="product-body">
+                                            <p class="product-category">{{ product.category.first }}</p>
+                                            <h3 class="product-name"><a
+                                                    href="{% url "product:product_detail"  product.title %}">{{ product.title }}</a>
+                                            </h3>
+                                            {% if product.on_sale %}
+                                                <h4 class="product-price">${{ product.discount }}.00
+                                                    <del class="product-old-price">${{ product.price }}.00</del>
+                                                </h4>
+                                            {% elif product.quantity == 0 %}
+                                                <del class="product-old-price">${{ product.price }}.00</del>
+                                                </h4>
+                                            {% else %}
+                                                <h4 class="product-price">${{ product.price }}.00</h4>
+                                            {% endif %}
+                                            <div class="product-review">
+                                                <small>{% with product.comments.count as count %}{{ count }}
+                                                    review(s){% endwith %}</small>
+                                            </div>
+                                            <div class="product-btns">
+                                                {#                                                <a href="{% url "product:wishlist" products.id %}" class="add-to-wishlist"><i class="fa fa-heart-o"></i><span#}
+                                                {#                                                        class="tooltipp">add to wishlist</span></a>#}
+                                                {#                                                <form action="{% url 'product:add_wishlist' id=product.id %}" method="post">#}
+                                                {#                                                    {% csrf_token %}#}
+                                                {#                                                    <button class="fa fa-heart-o" type="submit">#}
+                                                {#                                                    </button>#}
+                                                {#                                                </form>#}
+                                                <form id="wishlist-form-{{ product.id }}"
+                                                      action="{% url 'product:add_wishlist' id=product.id %}"
+                                                      method="post">
+                                                    {% csrf_token %}
+                                                    <button class="wishlist-toggle {% if request.user in product.wishlist.all %}active{% endif %}"
+                                                            type="button">
+                                                        {% if request.user in product.wishlist.all %}
+                                                            <i class="fa fa-heart"></i>
+                                                        {% else %}
+                                                            <i class="fa fa-heart-o"></i>
+                                                        {% endif %}
+                                                    </button>
+                                                </form>
+                                                {#                                                <button class="add-to-compare"><i class="fa fa-exchange"></i><span#}
+                                                {#                                                        class="tooltipp">add to compare</span></button>#}
+
+                                            </div>
+                                        </div>
+                                        <div class="add-to-cart">
+                                            {% if product.quantity == 0 %}
+                                                <button class="add-to-cart-btn"><i
+                                                        class="fa fa-shopping-cart"></i> Not Available
+                                                </button>
+                                            {% else %}
+                                                <form method="post" action="{% url 'cart:cart_add' pk=product.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="add-to-cart-btn"><i
+                                                            class="fa fa-shopping-cart"></i> add
+                                                        to cart
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <!-- /product -->
+                    </div>
+                    <!-- /store products -->
+
+                    <!-- store bottom filter -->
+                    <div class="store-filter clearfix">
+                        {% if products.has_other_pages %}
+                            <div class="d-flex justify-content-center">
+                                <ul class="store-pagination">
+                                    {% if products.has_previous %}
+                                        <li><a href="?page=
+
+
+
+
+
+
+
+
+
+
+                                                {{ products.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"><i
+                                                class="fa fa-angle-left"></i></a></li>
+                                    {% endif %}
+                                    {% for i in products.paginator.page_range %}
+                                        {% if products.number == i %}
+                                            <li class="active"><a href="?page=
+
+
+
+
+
+
+
+
+
+
+                                                    {{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li><a href="?page=
+
+
+
+
+
+
+
+
+
+
+                                                    {{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if products.has_next %}
+                                        <li><a href="?page=
+
+
+
+
+
+
+
+
+
+
+                                                {{ products.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"><i
+                                                class="fa fa-angle-right"></i></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- /store bottom filter -->
+                </div>
+                <!-- /STORE -->
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /container -->
+    </div>
+    <!-- /SECTION -->
+
+{% endblock %}
