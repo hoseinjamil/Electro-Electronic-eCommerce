@@ -22,6 +22,7 @@ def synchronize_wishlist(request):
         # Clear the session wishlist after synchronizing with the user's wishlist
         request.session['wishlist'] = []
 
+
 class UserLoginView(FormView):
     def get(self, request):
         cart = Cart(request)
@@ -34,13 +35,17 @@ class UserLoginView(FormView):
             wishlist = request.session.get('wishlist', [])
             wishlist_count = len(wishlist)
         form = UserLoginForm()
-        return render(request, "profile_users/user_login.html", context={'form': form, 'cart_qty':cart_qty, 'wishlist_count':wishlist_count})
+        return render(request, "profile_users/user_login.html",
+                      context={'form': form, 'cart_qty': cart_qty, 'wishlist_count': wishlist_count})
 
     def post(self, request):
         form = UserLoginForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            user = authenticate(username=cd['phone'], password=cd['password'])
+
+            # Authenticate using the standard username and password fields
+            user = authenticate(request, username=cd['phone'], password=cd['password'])
+
             if user is not None:
                 login(request, user)
                 messages.success(request, "You are logged in now")
@@ -49,12 +54,10 @@ class UserLoginView(FormView):
                 if next_page:
                     return redirect(next_page)
                 return redirect('/')
-
-
             else:
-                form.add_error("phone", "invalid username or password")
+                form.add_error("phone", "Invalid username or password")
         else:
-            form.add_error("phone", "invalid data")
+            form.add_error("phone", "Invalid data")
 
         return render(request, 'profile_users/user_login.html', {'form': form})
 
@@ -82,7 +85,8 @@ class UserRegisterView(FormView):
             wishlist = request.session.get('wishlist', [])
             wishlist_count = len(wishlist)
         form = UserRegisterForm()
-        return render(request, "profile_users/user_register.html", context={'form': form, 'cart_qty':cart_qty, 'wishlist_count':wishlist_count})
+        return render(request, "profile_users/user_register.html",
+                      context={'form': form, 'cart_qty': cart_qty, 'wishlist_count': wishlist_count})
 
     def post(self, request):
         form = UserRegisterForm(request.POST)
@@ -128,4 +132,5 @@ class AddAddressView(View):
             wishlist = request.session.get('wishlist', [])
             wishlist_count = len(wishlist)
         form = AddressFormCreation()
-        return render(request, 'profile_users/add_address.html', {'form': form, 'cart_qty':cart_qty, 'wishlist_count':wishlist_count})
+        return render(request, 'profile_users/add_address.html',
+                      {'form': form, 'cart_qty': cart_qty, 'wishlist_count': wishlist_count})
