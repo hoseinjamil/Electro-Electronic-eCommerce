@@ -2,6 +2,12 @@
 {% load static %}
 {% block content %}
 
+    {% block cart_quantity %}
+        <div id="cart-qty" class="qty">{{ cart_qty }}</div>
+    {% endblock %}
+    {% block wishlist_count %}
+        <div id="wishlist-qty" class="qty">{{ wishlist_count }}</div>
+    {% endblock %}
     <!-- Cart Start -->
     <div class="container-fluid">
         <div class="row px-xl-5">
@@ -39,7 +45,8 @@
                         <input type="text" name="discount_code" class="form-control border-0 p-4"
                                placeholder="Discount Code">
                         <div class="input-group-append">
-                            <button class="btn btn-block btn-warning font-weight-bold my-3 py-3">Apply Discount Code</button>
+                            <button class="btn btn-block btn-warning font-weight-bold my-3 py-3">Apply Discount Code
+                            </button>
                         </div>
                     </div>
                     {% if expired %}
@@ -69,7 +76,7 @@
                     </div>
                 </div>
                 {% if request.user.addresses.all %}
-{#                    <form action="{% url 'cart:send_request' order.id %}" method="post">#}
+                    {#                    <form action="{% url 'cart:send_request' order.id %}" method="post">#}
                     <form action="{% url "cart:purchase" %}" method="get">
                         {% csrf_token %}
                         <select name="address" class="form-control" aria-label="Default select example">
